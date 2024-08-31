@@ -22,51 +22,26 @@ def load_pdf_from_url(pdf_url):
     for page in pdf_reader.pages:
         text += page.extract_text()
     return text
+    # Sidebar with logo and Google API Key input
+    with st.sidebar:
+        st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=300)
+        st.sidebar.subheader("Google API Key")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
 
-def main():
-    st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
-
-    # Display logo and title on the same line
+    # Main content area
     st.markdown(
         """
         <style>
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .main-content {
+            text-align: center;
             margin-bottom: 20px;
-        }
-        .logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-right: 15px;
-        }
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
         .title {
             font-size: 36px;
             font-weight: bold;
         }
-        .text-input {
-            border: 2px solid black;
-            border-radius: 5px;
-            padding: 5px;
-        }
-        .password-input {
-            border: 2px solid black;
-            border-radius: 5px;
-            padding: 5px;
-        }
         </style>
-        <div class="header-container">
-            <div class="logo">
-                <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
-            </div>
+        <div class="main-content">
             <div class="title">
                 Hope To Skill AI-Chatbot
             </div>
@@ -74,6 +49,11 @@ def main():
         """,
         unsafe_allow_html=True
     )
+
+def main():
+    st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
+
+
 
     st.subheader("Hello, How can I help you today?")
 
