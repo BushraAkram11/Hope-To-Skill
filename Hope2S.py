@@ -42,10 +42,14 @@ def main():
             color: gray;
             margin-bottom: 20px;
         }
-        .input-field {
-            border: 2px solid black;
+        .stTextInput input {
+            border: 2px solid black !important;
             border-radius: 5px;
             padding: 10px;
+            box-sizing: border-box;
+        }
+        .stTextInput {
+            margin-bottom: 20px;
         }
         </style>
         <div class="title">Hope To Skill AI-Chatbot</div>
@@ -60,10 +64,10 @@ def main():
     with st.sidebar:
         st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=300)
         st.sidebar.subheader("Google API Key")
-        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here", placeholder="Your Google API Key", label_visibility="collapsed")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here", placeholder="Your Google API Key")
 
     # Input field for user query
-    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Type your question...", help="Type your question here")
+    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Type your question...")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
