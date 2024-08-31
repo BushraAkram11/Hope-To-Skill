@@ -67,7 +67,7 @@ def main():
         user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here", placeholder="Your Google API Key")
 
     # Input field for user query
-    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Type your question...")
+    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Enter Please...")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
