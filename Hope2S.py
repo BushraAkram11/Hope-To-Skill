@@ -73,7 +73,7 @@ def main():
         unsafe_allow_html=True
     )
 
-    st.subheader("Hello, How can I help you today?:")
+    st.subheader("Hello! Welcome to Hope To Skill AI Chatbot. How can I assist you today? Feel free to ask me any questions or seek guidance.")
 
     # Search bar with black outline
     input_query = st.text_input("🔍Type your question here...")
