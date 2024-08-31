@@ -27,7 +27,7 @@ def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
     
     # CSS styling for black outline
-    st.markdown(
+st.markdown(
     """
     <style>
     .header-container {
@@ -43,11 +43,12 @@ def main():
         border-radius: 50%;
         overflow: hidden;
         margin-right: 15px;
+        flex-shrink: 0;  /* Prevents shrinking */
     }
     .logo img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: cover; /* Ensures image stays within the circular shape */
     }
     .title {
         font-size: 36px;
@@ -58,6 +59,8 @@ def main():
     /* Adjustments for smaller screens */
     @media (max-width: 600px) {
         .logo {
+            width: 80px;  /* Reduce size for smaller screens */
+            height: 80px;
             margin-right: 0;
             margin-bottom: 10px;
         }
@@ -80,6 +83,7 @@ def main():
     """,
     unsafe_allow_html=True
 )
+
 
 
     st.subheader("Hello! Welcome to Hope To Skill AI Chatbot. How can I assist you today?")
