@@ -53,12 +53,12 @@ def main():
         }
         </style>
         <div class="title">Hope To Skill AI-Chatbot</div>
-        <div class="subtitle">Your Assistant for Information and Support</div>
+        <div class="subtitle">Hello! Welcome to Hope_To_Skill AI Chatbot, How can I help you today?</div>
         """,
         unsafe_allow_html=True
     )
 
-    st.subheader("Hello, How can I help you today?")
+    #st.subheader("Hello, How can I help you today?")
 
     # Sidebar with logo and Google API Key input
     with st.sidebar:
