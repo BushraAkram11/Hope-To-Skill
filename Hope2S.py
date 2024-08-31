@@ -26,61 +26,44 @@ def load_pdf_from_url(pdf_url):
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
 
+    # Main content area with simplified CSS
+    st.markdown(
+        """
+        <style>
+        .title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 24px;
+            color: gray;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        </style>
+        <div class="title">Hope To Skill AI-Chatbot</div>
+        <div class="subtitle">Your Assistant for Information and Support</div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.subheader("Hello, How can I help you today?")
 
     # Sidebar with logo and Google API Key input
     with st.sidebar:
         st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=300)
         st.sidebar.subheader("Google API Key")
-        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here", placeholder="Your Google API Key", label_visibility="collapsed")
 
-    # Main content area
-    st.markdown(
-        """
-        <style>
-        .main-content {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-        }
-        .search-input, .api-key-input {
-            border: 2px solid black !important;
-            border-radius: 5px;
-            padding: 5px;
-        }
-        </style>
-        <div class="main-content">
-            <div class="title">
-                Hope To Skill AI-Chatbot
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    input_query = st.text_input("🔍 Type your question here...", key="search_input", help="Type your question here", label_visibility="collapsed")
-    st.subheader("Hello, How can I help you today?")
-
-    # Add custom CSS for input fields
-    st.markdown(
-        """
-        <style>
-        .search-input {
-            border: 2px solid black !important;
-            border-radius: 5px;
-            padding: 5px;
-        }
-        .api-key-input {
-            border: 2px solid black !important;
-            border-radius: 5px;
-            padding: 5px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    # Input field for user query
+    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Type your question...", help="Type your question here")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
