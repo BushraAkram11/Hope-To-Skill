@@ -26,26 +26,9 @@ def load_pdf_from_url(pdf_url):
 def main():
     st.set_page_config(page_title="AI Chatbot", page_icon=":robot_face:")
 
-    # Main content area with centered title and subtitle
-    st.markdown(
-        """
-        <style>
-        .title {
-            text-align: center;
-            font-size: 36px;
-            font-weight: bold;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 24px;
-            color: gray;
-        }
-        </style>
-        <div class="title">Hope To Skill AI Chatbot</div>
-        <div class="subtitle">Welcome to Hope To Skill AI Chatbot. How can I help you today?</div>
-        """,
-        unsafe_allow_html=True
-    )
+    # Main content area
+    st.title("Hope To Skill AI Chatbot")
+    st.write("Welcome to Hope To Skill AI Chatbot. How can I help you today?")
 
     # Sidebar with Google API Key input
     with st.sidebar:
@@ -125,7 +108,14 @@ def rag(vector_db, input_query, google_api_key):
             | output_parser
         )
         response = rag_chain.invoke({"context": "", "question": input_query})
-        return response
+
+        # Ensure response is a string
+        if isinstance(response, dict):
+            response_text = response.get('text', 'No response available.')
+        else:
+            response_text = response
+
+        return response_text
     except Exception as ex:
         return str(ex)
 
