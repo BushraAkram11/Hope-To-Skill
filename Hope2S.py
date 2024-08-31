@@ -35,11 +35,7 @@ def main():
             font-size: 36px;
             font-weight: bold;
         }
-        </style>
-        <div class="header-container">
-            <div class="logo">
-                <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
-            </div>
+
             <div class="title">
                 Hope To Skill AI-Chatbot
             </div>
