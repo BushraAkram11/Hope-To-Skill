@@ -53,8 +53,7 @@ def main():
         }
         </style>
         <div class="title">Hope To Skill AI-Chatbot</div>
-        <div class="subtitle">Hello! Welome To Hope_To_Skill AI-Chatbot, How can I help you today?
-</div>
+        <div class="subtitle">Your Assistant for Information and Support</div>
         """,
         unsafe_allow_html=True
     )
