@@ -26,74 +26,68 @@ def load_pdf_from_url(pdf_url):
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
     
-    # CSS styling for black outline
-st.markdown(
-    """
-    <style>
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-    .logo {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 15px;
-        flex-shrink: 0;  /* Prevents shrinking */
-    }
-    .logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ensures image stays within the circular shape */
-    }
-    .title {
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    /* Adjustments for smaller screens */
-    @media (max-width: 600px) {
+    # Display logo in the sidebar
+    st.sidebar.markdown(
+        """
+        <style>
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
         .logo {
-            width: 80px;  /* Reduce size for smaller screens */
-            height: 80px;
-            margin-right: 0;
-            margin-bottom: 10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        </style>
+        <div class="sidebar-logo">
+            <div class="logo">
+                <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Main content
+    st.markdown(
+        """
+        <style>
+        .main-content {
+            text-align: center;
+            margin-bottom: 20px;
         }
         .title {
-            font-size: 28px;
+            font-size: 36px;
+            font-weight: bold;
         }
-        .header-container {
-            flex-direction: column;
-        }
-    }
-    </style>
-    <div class="header-container">
-        <div class="logo">
-            <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
+        </style>
+        <div class="main-content">
+            <div class="title">
+                Hope To Skill AI-Chatbot
+            </div>
         </div>
-        <div class="title">
-            Hope To Skill AI-Chatbot
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        """,
+        unsafe_allow_html=True
+    )
 
+    st.subheader("Hello, How can I help you today?")
 
+    input_query = st.text_input("🔍 Type your question here...")
 
-    st.subheader("Hello! Welcome to Hope To Skill AI Chatbot. How can I assist you today?")
-
-    # Search bar with black outline
-    input_query = st.text_input("🔍Type your question here...")
-
-    # Sidebar with black outline for API Key input
+    # Sidebar for API Key
     st.sidebar.subheader("Google API Key")
-    user_google_api_key = st.sidebar.text_input("🔑Enter your Google Gemini API key to Ask Questions", type="password")
+    user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
     
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
@@ -149,7 +143,7 @@ def rag(vector_db, input_query, google_api_key):
     try:
         template = """You are an AI assistant that assists users by providing answers to their questions by extracting information from the provided context:
         {context}.
-        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
+        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that. You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
         Question: {question}
         """
 
