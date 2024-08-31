@@ -28,50 +28,59 @@ def main():
     
     # CSS styling for black outline
     st.markdown(
-        """
-        <style>
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+    """
+    <style>
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .logo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+    }
+    .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .title {
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* Adjustments for smaller screens */
+    @media (max-width: 600px) {
         .logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-right: 15px;
-        }
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            margin-right: 0;
+            margin-bottom: 10px;
         }
         .title {
-            font-size: 36px;
-            font-weight: bold;
+            font-size: 28px;
         }
-        input[type="text"] {
-            border: 2px solid black;
-            border-radius: 5px;
+        .header-container {
+            flex-direction: column;
         }
-        input[type="password"] {
-            border: 2px solid black;
-            border-radius: 5px;
-        }
-        </style>
-        <div class="header-container">
-            <div class="logo">
-                <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
-            </div>
-            <div class="title">
-                Hope To Skill AI-Chatbot
-            </div>
+    }
+    </style>
+    <div class="header-container">
+        <div class="logo">
+            <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        <div class="title">
+            Hope To Skill AI-Chatbot
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
     st.subheader("Hello! Welcome to Hope To Skill AI Chatbot. How can I assist you today?")
 
