@@ -22,38 +22,9 @@ def load_pdf_from_url(pdf_url):
     for page in pdf_reader.pages:
         text += page.extract_text()
     return text
-    # Sidebar with logo and Google API Key input
-    with st.sidebar:
-        st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=300)
-        st.sidebar.subheader("Google API Key")
-        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
-
-    # Main content area
-    st.markdown(
-        """
-        <style>
-        .main-content {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-        }
-        </style>
-        <div class="main-content">
-            <div class="title">
-                Hope To Skill AI-Chatbot
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
-
-
 
     st.subheader("Hello, How can I help you today?")
 
@@ -75,6 +46,11 @@ def main():
             font-size: 36px;
             font-weight: bold;
         }
+        .search-input, .api-key-input {
+            border: 2px solid black !important;
+            border-radius: 5px;
+            padding: 5px;
+        }
         </style>
         <div class="main-content">
             <div class="title">
@@ -85,18 +61,18 @@ def main():
         unsafe_allow_html=True
     )
 
-    input_query = st.text_input("🔍 Type your question here...", key="search_input")
+    input_query = st.text_input("🔍 Type your question here...", key="search_input", help="Type your question here", label_visibility="collapsed")
 
     # Add custom CSS for input fields
     st.markdown(
         """
         <style>
-        .css-1k21j8i {
+        .search-input {
             border: 2px solid black !important;
             border-radius: 5px;
             padding: 5px;
         }
-        .css-1p4z2t6 {
+        .api-key-input {
             border: 2px solid black !important;
             border-radius: 5px;
             padding: 5px;
