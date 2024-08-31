@@ -26,40 +26,43 @@ def load_pdf_from_url(pdf_url):
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
     
-    # Display logo in the sidebar
-    st.sidebar.markdown(
-        """
-        <style>
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        </style>
-        <div class="sidebar-logo">
-            <div class="logo">
-                <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
+    # Sidebar with logo and Google API Key input
+    with st.sidebar:
+        st.markdown(
+            """
+            <style>
+            .sidebar-logo {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            .logo {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin-right: 15px;
+                flex-shrink: 0;
+            }
+            .logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            </style>
+            <div class="sidebar-logo">
+                <div class="logo">
+                    <img src="https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Main content
+            """,
+            unsafe_allow_html=True
+        )
+        st.sidebar.subheader("Google API Key")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
+
+    # Main content area
     st.markdown(
         """
         <style>
@@ -85,10 +88,6 @@ def main():
 
     input_query = st.text_input("🔍 Type your question here...")
 
-    # Sidebar for API Key
-    st.sidebar.subheader("Google API Key")
-    user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
-    
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
