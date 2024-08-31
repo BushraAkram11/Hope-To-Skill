@@ -24,9 +24,9 @@ def load_pdf_from_url(pdf_url):
     return text
 
 def main():
-    st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
+    st.set_page_config(page_title="AI Chatbot", page_icon=":robot_face:")
 
-    # Main content area with simplified CSS
+    # Main content area with centered title and subtitle
     st.markdown(
         """
         <style>
@@ -34,41 +34,26 @@ def main():
             text-align: center;
             font-size: 36px;
             font-weight: bold;
-            margin-bottom: 20px;
         }
         .subtitle {
             text-align: center;
             font-size: 24px;
             color: gray;
-            margin-bottom: 20px;
-        }
-        .stTextInput input {
-            border: 2px solid black !important;
-            border-radius: 5px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .stTextInput {
-            margin-bottom: 20px;
         }
         </style>
-        <div class="title">Hope To Skill AI-Chatbot</div>
-        <div class="subtitle">Welcome to Hope To Skill AI Chatbot, How can I help you today?</div>
+        <div class="title">Hope To Skill AI Chatbot</div>
+        <div class="subtitle">Welcome to Hope To Skill AI Chatbot. How can I help you today?</div>
         """,
         unsafe_allow_html=True
     )
 
-    #st.subheader("Hello, How can I help you today?")
-
-    # Sidebar with logo and Google API Key input
+    # Sidebar with Google API Key input
     with st.sidebar:
         st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=290)
         st.sidebar.subheader("Google API Key")
-        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here", placeholder="Your Google API Key")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key", type="password", placeholder="Your Google API Key")
 
-    # Input field for user query
-    input_query = st.text_input("🔍 Type your question here...", key="search_input", placeholder="Enter Please...")
-
+    # Initialize session state
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
@@ -90,17 +75,16 @@ def main():
         st.session_state.conversation = vectorstore
         st.session_state.processComplete = True
 
-    # Chatbot functionality
-    if input_query:
-        response_text = rag(st.session_state.conversation, input_query, google_api_key)
-        st.session_state.chat_history.append({"content": input_query, "is_user": True})
-        st.session_state.chat_history.append({"content": response_text, "is_user": False})
+    # Display chat history above the input field
+    for i, message_data in enumerate(st.session_state.chat_history):
+        message(message_data["content"], is_user=message_data["is_user"], key=str(i))
 
-    # Display chat history
-    response_container = st.container()
-    with response_container:
-        for i, message_data in enumerate(st.session_state.chat_history):
-            message(message_data["content"], is_user=message_data["is_user"], key=str(i))
+    # Accept user input with Streamlit's chat input widget
+    if query := st.chat_input("What is your question?"):
+        # Process the query and update chat history
+        response_text = rag(st.session_state.conversation, query, google_api_key)
+        st.session_state.chat_history.append({"content": query, "is_user": True})
+        st.session_state.chat_history.append({"content": response_text, "is_user": False})
 
 # Function to split text into smaller chunks
 def get_text_chunks(text):
@@ -140,7 +124,7 @@ def rag(vector_db, input_query, google_api_key):
             | model
             | output_parser
         )
-        response = rag_chain.invoke(input_query)
+        response = rag_chain.invoke({"context": "", "question": input_query})
         return response
     except Exception as ex:
         return str(ex)
