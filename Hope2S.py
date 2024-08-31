@@ -47,11 +47,9 @@ def main():
             border-radius: 5px;
             padding: 10px;
             box-sizing: border-box;
-            width: 100%;  /* Full width */
         }
         .stTextInput {
             margin-bottom: 20px;
-            width: 100%;  /* Full width container */
         }
         </style>
         <div class="title">Hope To Skill AI-Chatbot</div>
@@ -59,6 +57,8 @@ def main():
         """,
         unsafe_allow_html=True
     )
+
+    #st.subheader("Hello, How can I help you today?")
 
     # Sidebar with logo and Google API Key input
     with st.sidebar:
