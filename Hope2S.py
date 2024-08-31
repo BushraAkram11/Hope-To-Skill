@@ -24,11 +24,28 @@ def load_pdf_from_url(pdf_url):
     return text
 
 def main():
-    st.set_page_config(page_title="AI Chatbot", page_icon=":robot_face:")
+    st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
 
-    # Main content area
-    st.title("Hope To Skill AI Chatbot")
-    st.write("Welcome to Hope To Skill AI Chatbot. How can I help you today?")
+    # Main content area with centered title and subtitle
+    st.markdown(
+        """
+        <style>
+        .title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 24px;
+            color: gray;
+        }
+        </style>
+        <div class="title">Hope To Skill AI Chatbot</div>
+        <div class="subtitle">Welcome to Hope To Skill AI Chatbot. How can I help you today?</div>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Sidebar with Google API Key input
     with st.sidebar:
@@ -36,7 +53,6 @@ def main():
         st.sidebar.subheader("Google API Key")
         user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key", type="password", placeholder="Your Google API Key")
 
-    # Initialize session state
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
@@ -60,14 +76,23 @@ def main():
 
     # Display chat history above the input field
     for i, message_data in enumerate(st.session_state.chat_history):
-        message(message_data["content"], is_user=message_data["is_user"], key=str(i))
+        # Append a unique prefix to avoid key duplication
+        unique_key = f"history_{i}"
+        message(message_data["content"], is_user=message_data["is_user"], key=unique_key)
 
     # Accept user input with Streamlit's chat input widget
-    if query := st.chat_input("What is your question?"):
-        # Process the query and update chat history
-        response_text = rag(st.session_state.conversation, query, google_api_key)
-        st.session_state.chat_history.append({"content": query, "is_user": True})
+    if input_query := st.chat_input("What is your question?"):
+        response_text = rag(st.session_state.conversation, input_query, google_api_key)
+        st.session_state.chat_history.append({"content": input_query, "is_user": True})
         st.session_state.chat_history.append({"content": response_text, "is_user": False})
+
+    # Display chat history with unique keys
+    response_container = st.container()
+    with response_container:
+        for i, message_data in enumerate(st.session_state.chat_history):
+            # Append a unique prefix to avoid key duplication
+            unique_key = f"response_{i}"
+            message(message_data["content"], is_user=message_data["is_user"], key=unique_key)
 
 # Function to split text into smaller chunks
 def get_text_chunks(text):
@@ -90,7 +115,7 @@ def rag(vector_db, input_query, google_api_key):
     try:
         template = """You are an AI assistant that assists users by providing answers to their questions by extracting information from the provided context:
         {context}.
-        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that. You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
+        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
         Question: {question}
         """
 
@@ -107,15 +132,8 @@ def rag(vector_db, input_query, google_api_key):
             | model
             | output_parser
         )
-        response = rag_chain.invoke({"context": "", "question": input_query})
-
-        # Ensure response is a string
-        if isinstance(response, dict):
-            response_text = response.get('text', 'No response available.')
-        else:
-            response_text = response
-
-        return response_text
+        response = rag_chain.invoke(input_query)
+        return response
     except Exception as ex:
         return str(ex)
 
