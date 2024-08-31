@@ -26,7 +26,6 @@ def load_pdf_from_url(pdf_url):
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
 
-    st.subheader("Hello, How can I help you today?")
 
     # Sidebar with logo and Google API Key input
     with st.sidebar:
@@ -62,6 +61,7 @@ def main():
     )
 
     input_query = st.text_input("🔍 Type your question here...", key="search_input", help="Type your question here", label_visibility="collapsed")
+    st.subheader("Hello, How can I help you today?")
 
     # Add custom CSS for input fields
     st.markdown(
