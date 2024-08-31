@@ -25,7 +25,7 @@ def load_pdf_from_url(pdf_url):
 
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
-    
+
     # Display logo and title on the same line
     st.markdown(
         """
@@ -52,6 +52,16 @@ def main():
             font-size: 36px;
             font-weight: bold;
         }
+        .text-input {
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .password-input {
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 5px;
+        }
         </style>
         <div class="header-container">
             <div class="logo">
@@ -65,13 +75,13 @@ def main():
         unsafe_allow_html=True
     )
 
-    
-    st.subheader("Hello, How can I help you today?:")
+    st.subheader("Hello, How can I help you today?")
+
     # Sidebar with logo and Google API Key input
     with st.sidebar:
         st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=300)
         st.sidebar.subheader("Google API Key")
-        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password")
+        user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key to Ask Questions", type="password", key="password_input", help="Enter your Google API key here")
 
     # Main content area
     st.markdown(
@@ -95,15 +105,27 @@ def main():
         unsafe_allow_html=True
     )
 
-    #st.markdown("<div style='height: 530px;'></div>", unsafe_allow_html=True)
-# Adds a blank line for spacing
+    input_query = st.text_input("🔍 Type your question here...", key="search_input")
 
-    input_query = st.text_input("🔍Type your question here...")
+    # Add custom CSS for input fields
+    st.markdown(
+        """
+        <style>
+        .css-1k21j8i {
+            border: 2px solid black !important;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .css-1p4z2t6 {
+            border: 2px solid black !important;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Sidebar for API Key
-    st.sidebar.subheader("Google API Key")
-    user_google_api_key = st.sidebar.text_input("🔑Enter your Google Gemini API key to Ask Questions", type="password")
-    
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
@@ -158,7 +180,7 @@ def rag(vector_db, input_query, google_api_key):
     try:
         template = """You are an AI assistant that assists users by providing answers to their questions by extracting information from the provided context:
         {context}.
-        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
+        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that. You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
         Question: {question}
         """
 
