@@ -59,7 +59,7 @@ def main():
         unsafe_allow_html=True
     )
 
-    #st.subheader("Hello, How can I help you today?")
+    st.subheader("Hello, How can I help you today?")
 
     # Sidebar with logo and Google API Key input
     with st.sidebar:
