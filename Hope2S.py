@@ -90,11 +90,11 @@ def main():
         for i, message_data in enumerate(st.session_state.chat_history):
             message(message_data["content"], is_user=message_data["is_user"], key=str(i + len(st.session_state.chat_history)))
 
-# Function to split text into smaller chunks
+# Function to split text into larger chunks with more overlap
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=900,
-        chunk_overlap=100,
+        chunk_size=1500,  # Increase chunk size
+        chunk_overlap=300,  # Increase overlap
         length_function=len,
         is_separator_regex=False,
     )
@@ -116,7 +116,7 @@ def rag(vector_db, input_query, google_api_key):
         """
 
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})  # Increase k to fetch more context
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Increase k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
