@@ -93,8 +93,8 @@ def main():
 # Function to split text into larger chunks with more overlap
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1500,  # Increase chunk size
-        chunk_overlap=300,  # Increase overlap
+        chunk_size=2000,  # Increased chunk size
+        chunk_overlap=400,  # Increased overlap
         length_function=len,
         is_separator_regex=False,
     )
@@ -102,7 +102,7 @@ def get_text_chunks(text):
 
 # Function to generate vector store from text chunks
 def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MPNet-base-v2")  # More powerful embeddings model
     knowledge_base = FAISS.from_texts(text_chunks, embeddings)
     return knowledge_base
 
@@ -115,13 +115,12 @@ Please ensure your answer is as detailed as possible, including all relevant inf
 Question: {question}
 """
 
-
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Increase k to fetch more context
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 7})  # Increased k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.8, google_api_key=google_api_key)  # Adjusted temperature for more detailed responses
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
