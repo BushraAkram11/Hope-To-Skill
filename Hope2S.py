@@ -13,26 +13,76 @@ import requests
 
 # Function to download and extract text from PDF from URL
 def load_pdf_from_url(pdf_url):
-    try:
-        response = requests.get(pdf_url)
-        response.raise_for_status()
-        
-        with open("downloaded_pdf.pdf", "wb") as f:
-            f.write(response.content)
+    response = requests.get(pdf_url)
+    with open("downloaded_pdf.pdf", "wb") as f:
+        f.write(response.content)
 
-        text = ""
-        pdf_reader = PdfReader("downloaded_pdf.pdf")
-        for page in pdf_reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text
-            else:
-                st.warning(f"Warning: No text extracted from page {pdf_reader.pages.index(page) + 1}")
-        return text
-    except requests.RequestException as e:
-        st.error(f"Error downloading PDF: {e}")
-    except Exception as e:
-        st.error(f"Error reading PDF: {e}")
+    text = ""
+    pdf_reader = PdfReader("downloaded_pdf.pdf")
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+# Function to split text into smaller chunks
+def get_text_chunks(text):
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=900,
+        chunk_overlap=100,
+        length_function=len,
+        is_separator_regex=False,
+    )
+    return text_splitter.split_text(text)
+
+# Function to generate vector store from text chunks
+def get_vectorstore(text_chunks):
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    knowledge_base = FAISS.from_texts(text_chunks, embeddings)
+    return knowledge_base
+
+# Function to perform question answering with Google Generative AI
+def rag(vector_db, input_query, google_api_key):
+    try:
+        template = """You are an AI assistant that assists users by providing detailed and comprehensive answers to their questions by extracting information from the provided context:
+        {context}.
+        Please provide a thorough and well-explained answer. If you do not find any relevant information from the context for the given question, simply say 'Sorry, I have no idea about that. You can contact Hope To Skill AI Team.'. Do not try to make up an answer.
+        Question: {question}
+        """
+
+        prompt = ChatPromptTemplate.from_template(template)
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+        setup_and_retrieval = RunnableParallel(
+            {"context": retriever, "question": RunnablePassthrough()})
+
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)
+        output_parser = StrOutputParser()
+        rag_chain = (
+            setup_and_retrieval
+            | prompt
+            | model
+            | output_parser
+        )
+        
+        # Invoke the chain and check the type of response
+        response = rag_chain.invoke(input_query)
+        
+        # Add debugging statements to understand the response structure
+        st.write(f"Type of response: {type(response)}")
+        st.write(f"Response content: {response}")
+
+        # If response is a dictionary, access it accordingly
+        if isinstance(response, dict):
+            context = response.get('context', 'No context available')
+            answer = response.get('answer', 'No answer available')
+            st.write(f"Context used for query: {context[:500]}...")  # Display the first 500 characters of context
+            st.write(f"Response: {answer}")
+            return answer
+        else:
+            st.write("Unexpected response format.")
+            return "Sorry, I have no idea about that. You can contact Hope To Skill AI Team."
+
+    except Exception as ex:
+        st.write(f"Exception occurred: {str(ex)}")
+        return str(ex)
 
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
@@ -80,15 +130,14 @@ def main():
     # Process the PDF in the background (hidden from user)
     if st.session_state.processComplete is None:
         files_text = load_pdf_from_url(pdf_url)
-        if files_text:
-            text_chunks = get_text_chunks(files_text)
-            vectorstore = get_vectorstore(text_chunks)
-            st.session_state.conversation = vectorstore
-            st.session_state.processComplete = True
+        text_chunks = get_text_chunks(files_text)
+        vectorstore = get_vectorstore(text_chunks)
+        st.session_state.conversation = vectorstore
+        st.session_state.processComplete = True
     
     # Display chat history above the input field
     for i, message_data in enumerate(st.session_state.chat_history):
-        message(message_data["content"], is_user=message_data["is_user"], key=f"message_{i}")
+        message(message_data["content"], is_user=message_data["is_user"], key=str(i))
 
     # Accept user input with Streamlit's chat input widget
     if input_query := st.chat_input("What is your question?"):
@@ -100,58 +149,7 @@ def main():
     response_container = st.container()
     with response_container:
         for i, message_data in enumerate(st.session_state.chat_history):
-            message(message_data["content"], is_user=message_data["is_user"], key=f"message_{i + len(st.session_state.chat_history)}")
-
-# Function to split text into smaller chunks
-def get_text_chunks(text):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=900,
-        chunk_overlap=100,
-        length_function=len,
-        is_separator_regex=False,
-    )
-    chunks = text_splitter.split_text(text)
-    st.write(f"Number of chunks: {len(chunks)}")
-    for i, chunk in enumerate(chunks):
-        st.write(f"Chunk {i+1}: {chunk[:200]}...")  # Display the first 200 characters of each chunk
-    return chunks
-
-# Function to generate vector store from text chunks
-def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    knowledge_base = FAISS.from_texts(text_chunks, embeddings)
-    st.write(f"Vector store created with {len(text_chunks)} chunks")
-    return knowledge_base
-
-# Function to perform question answering with Google Generative AI
-def rag(vector_db, input_query, google_api_key):
-    try:
-        template = """You are an AI assistant that assists users by providing detailed and comprehensive answers to their questions by extracting information from the provided context:
-        {context}.
-        Please provide a thorough and well-explained answer. If you do not find any relevant information from the context for the given question, simply say 'Sorry, I have no idea about that. You can contact Hope To Skill AI Team.'. Do not try to make up an answer.
-        Question: {question}
-        """
-
-        prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-        setup_and_retrieval = RunnableParallel(
-            {"context": retriever, "question": RunnablePassthrough()})
-
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)
-        output_parser = StrOutputParser()
-        rag_chain = (
-            setup_and_retrieval
-            | prompt
-            | model
-            | output_parser
-        )
-        response = rag_chain.invoke(input_query)
-        st.write(f"Context used for query: {response['context'][:500]}...")  # Display the first 500 characters of context
-        st.write(f"Response: {response}")
-        return response
-    except Exception as ex:
-        st.write(f"Exception occurred: {str(ex)}")
-        return str(ex)
+            message(message_data["content"], is_user=message_data["is_user"], key=str(i + len(st.session_state.chat_history)))
 
 if __name__ == '__main__':
     main()
