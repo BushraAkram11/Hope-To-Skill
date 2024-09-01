@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain.vectorstores import FAISS
-from PyPDF2 import PdfReader
+import pdfplumber
 import requests
 
 # Function to download and extract text from PDF from URL
@@ -18,9 +18,12 @@ def load_pdf_from_url(pdf_url):
         f.write(response.content)
 
     text = ""
-    pdf_reader = PdfReader("downloaded_pdf.pdf")
-    for page in pdf_reader.pages:
-        text += page.extract_text()
+    try:
+        with pdfplumber.open("downloaded_pdf.pdf") as pdf:
+            for page in pdf.pages:
+                text += page.extract_text() or ""
+    except Exception as e:
+        st.write(f"Error reading PDF: {e}")
     return text
 
 # Function to split text into smaller chunks
@@ -62,18 +65,12 @@ def rag(vector_db, input_query, google_api_key):
             | output_parser
         )
         
-        # Invoke the chain and check the type of response
         response = rag_chain.invoke(input_query)
         
-        # Add debugging statements to understand the response structure
-        st.write(f"Type of response: {type(response)}")
-        st.write(f"Response content: {response}")
-
-        # If response is a dictionary, access it accordingly
         if isinstance(response, dict):
             context = response.get('context', 'No context available')
             answer = response.get('answer', 'No answer available')
-            st.write(f"Context used for query: {context[:500]}...")  # Display the first 500 characters of context
+            st.write(f"Context used for query: {context[:500]}...")
             st.write(f"Response: {answer}")
             return answer
         else:
