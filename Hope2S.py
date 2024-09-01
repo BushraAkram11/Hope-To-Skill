@@ -21,7 +21,10 @@ def load_pdf_from_url(pdf_url):
     try:
         with pdfplumber.open("downloaded_pdf.pdf") as pdf:
             for page in pdf.pages:
-                text += page.extract_text() or ""
+                page_text = page.extract_text() or ""
+                text += page_text
+                # Debugging output
+                st.write(f"Extracted text from page {pdf.pages.index(page) + 1}: {page_text[:500]}...")
     except Exception as e:
         st.write(f"Error reading PDF: {e}")
     return text
@@ -34,12 +37,18 @@ def get_text_chunks(text):
         length_function=len,
         is_separator_regex=False,
     )
-    return text_splitter.split_text(text)
+    chunks = text_splitter.split_text(text)
+    # Debugging output
+    st.write(f"Number of text chunks: {len(chunks)}")
+    st.write(f"First chunk: {chunks[0][:500]}...")
+    return chunks
 
 # Function to generate vector store from text chunks
 def get_vectorstore(text_chunks):
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     knowledge_base = FAISS.from_texts(text_chunks, embeddings)
+    # Debugging output
+    st.write("Vector store created.")
     return knowledge_base
 
 # Function to perform question answering with Google Generative AI
@@ -70,6 +79,7 @@ def rag(vector_db, input_query, google_api_key):
         if isinstance(response, dict):
             context = response.get('context', 'No context available')
             answer = response.get('answer', 'No answer available')
+            # Debugging output
             st.write(f"Context used for query: {context[:500]}...")
             st.write(f"Response: {answer}")
             return answer
