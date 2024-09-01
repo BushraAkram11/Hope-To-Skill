@@ -117,11 +117,11 @@ Question: {question}
 
 
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Increase k to fetch more context
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 7})  # Increase k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.8, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
