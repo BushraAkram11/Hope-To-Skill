@@ -61,7 +61,7 @@ def main():
         st.session_state.processComplete = None
 
     # Use the direct download link for Google Drive PDF
-    pdf_url = "https://drive.google.com/file/d/1YN_vxYFcLGeTQ6KU4LCDmb-A5IMQPtGq/view?usp=drive_link"
+    pdf_url = "https://drive.google.com/uc?export=download&id=1YN_vxYFcLGeTQ6KU4LCDmb-A5IMQPtGq"
     default_google_api_key = ""
     
     google_api_key = user_google_api_key if user_google_api_key else default_google_api_key
