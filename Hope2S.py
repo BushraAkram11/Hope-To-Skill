@@ -61,7 +61,7 @@ def main():
         st.session_state.processComplete = None
 
     # Use the direct download link for Google Drive PDF
-    pdf_url = "https://drive.google.com/uc?export=download&id=17N15I2kbfDXeruSV3TS94ZtjxiGLJmGv"
+    pdf_url = "https://drive.google.com/file/d/1YN_vxYFcLGeTQ6KU4LCDmb-A5IMQPtGq/view?usp=drive_link"
     default_google_api_key = ""
     
     google_api_key = user_google_api_key if user_google_api_key else default_google_api_key
@@ -93,8 +93,8 @@ def main():
 # Function to split text into larger chunks with more overlap
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1500,  # Increase chunk size
-        chunk_overlap=300,  # Increase overlap
+        chunk_size=2000,  # Increase chunk size
+        chunk_overlap=400,  # Increase overlap
         length_function=len,
         is_separator_regex=False,
     )
