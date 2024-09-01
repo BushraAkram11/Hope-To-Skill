@@ -26,6 +26,8 @@ def load_pdf_from_url(pdf_url):
                 # Debugging output
                 st.write(f"Extracted text from page {pdf.pages.index(page) + 1}: {page_text[:500]}...")
         
+        if not text:
+            st.write("Warning: No text extracted from PDF.")
         return text
     except Exception as e:
         st.write(f"Error reading PDF: {e}")
@@ -55,7 +57,7 @@ def get_vectorstore(text_chunks):
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         knowledge_base = FAISS.from_texts(text_chunks, embeddings)
         # Debugging output
-        st.write("Vector store created.")
+        st.write("Vector store created successfully.")
         return knowledge_base
     except Exception as e:
         st.write(f"Error creating vector store: {e}")
@@ -87,7 +89,7 @@ def rag(vector_db, input_query, google_api_key):
         response = rag_chain.invoke(input_query)
         
         # Debugging output
-        st.write(f"Response: {response}")
+        st.write(f"Raw response from AI model: {response}")
 
         if isinstance(response, dict):
             context = response.get('context', 'No context available')
