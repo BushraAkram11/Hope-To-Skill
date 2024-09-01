@@ -109,18 +109,19 @@ def get_vectorstore(text_chunks):
 # Function to perform question answering with Google Generative AI
 def rag(vector_db, input_query, google_api_key):
     try:
-        template = """You are an AI assistant that assists users by providing detailed and comprehensive answers to their questions by extracting information from the provided context:
-        {context}.
-        Please provide a thorough and well-explained answer. If you do not find any relevant information from the context for the given question, simply say 'Sorry, I have no idea about that. You can contact Hope To Skill AI Team.'. Do not try to make up an answer.
-        Question: {question}
-        """
+        template = """You are an AI assistant tasked with providing in-depth, detailed, and comprehensive answers based on the given context:
+{context}.
+Please ensure your answer is as detailed as possible, including all relevant information available in the context. If the context provides a long explanation, include all of it in your response. If you do not find any relevant information in the context, simply say 'Sorry, I have no idea about that. You can contact Hope To Skill AI Team.' Do not make up an answer.
+Question: {question}
+"""
+
 
         prompt = ChatPromptTemplate.from_template(template)
         retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Increase k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
