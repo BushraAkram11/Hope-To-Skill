@@ -22,3 +22,12 @@ sentence-transformers
 faiss-cpu==1.8.0
 pdfplumber
 HuggingFaceEmbeddings==0.3.0
+streamlit==1.36.0
+streamlit_chat==0.0.2
+langchain==0.0.256
+langchain_google_genai==0.0.4
+PyPDF2==3.0.1
+requests==2.31.0
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+HuggingFaceEmbeddings==0.3.0
