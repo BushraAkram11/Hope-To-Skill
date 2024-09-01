@@ -13,43 +13,53 @@ import requests
 
 # Function to download and extract text from PDF from URL
 def load_pdf_from_url(pdf_url):
-    response = requests.get(pdf_url)
-    with open("downloaded_pdf.pdf", "wb") as f:
-        f.write(response.content)
-
-    text = ""
     try:
+        response = requests.get(pdf_url)
+        with open("downloaded_pdf.pdf", "wb") as f:
+            f.write(response.content)
+
+        text = ""
         with pdfplumber.open("downloaded_pdf.pdf") as pdf:
             for page in pdf.pages:
                 page_text = page.extract_text() or ""
                 text += page_text
                 # Debugging output
                 st.write(f"Extracted text from page {pdf.pages.index(page) + 1}: {page_text[:500]}...")
+        
+        return text
     except Exception as e:
         st.write(f"Error reading PDF: {e}")
-    return text
+        return ""
 
 # Function to split text into smaller chunks
 def get_text_chunks(text):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=900,
-        chunk_overlap=100,
-        length_function=len,
-        is_separator_regex=False,
-    )
-    chunks = text_splitter.split_text(text)
-    # Debugging output
-    st.write(f"Number of text chunks: {len(chunks)}")
-    st.write(f"First chunk: {chunks[0][:500]}...")
-    return chunks
+    try:
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=900,
+            chunk_overlap=100,
+            length_function=len,
+            is_separator_regex=False,
+        )
+        chunks = text_splitter.split_text(text)
+        # Debugging output
+        st.write(f"Number of text chunks: {len(chunks)}")
+        st.write(f"First chunk: {chunks[0][:500]}...")
+        return chunks
+    except Exception as e:
+        st.write(f"Error splitting text: {e}")
+        return []
 
 # Function to generate vector store from text chunks
 def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    knowledge_base = FAISS.from_texts(text_chunks, embeddings)
-    # Debugging output
-    st.write("Vector store created.")
-    return knowledge_base
+    try:
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        knowledge_base = FAISS.from_texts(text_chunks, embeddings)
+        # Debugging output
+        st.write("Vector store created.")
+        return knowledge_base
+    except Exception as e:
+        st.write(f"Error creating vector store: {e}")
+        return None
 
 # Function to perform question answering with Google Generative AI
 def rag(vector_db, input_query, google_api_key):
@@ -76,12 +86,14 @@ def rag(vector_db, input_query, google_api_key):
         
         response = rag_chain.invoke(input_query)
         
+        # Debugging output
+        st.write(f"Response: {response}")
+
         if isinstance(response, dict):
             context = response.get('context', 'No context available')
             answer = response.get('answer', 'No answer available')
-            # Debugging output
             st.write(f"Context used for query: {context[:500]}...")
-            st.write(f"Response: {answer}")
+            st.write(f"Answer: {answer}")
             return answer
         else:
             st.write("Unexpected response format.")
@@ -137,10 +149,19 @@ def main():
     # Process the PDF in the background (hidden from user)
     if st.session_state.processComplete is None:
         files_text = load_pdf_from_url(pdf_url)
-        text_chunks = get_text_chunks(files_text)
-        vectorstore = get_vectorstore(text_chunks)
-        st.session_state.conversation = vectorstore
-        st.session_state.processComplete = True
+        if files_text:
+            text_chunks = get_text_chunks(files_text)
+            if text_chunks:
+                vectorstore = get_vectorstore(text_chunks)
+                if vectorstore:
+                    st.session_state.conversation = vectorstore
+                    st.session_state.processComplete = True
+                else:
+                    st.write("Error: Vector store could not be created.")
+            else:
+                st.write("Error: No text chunks were created.")
+        else:
+            st.write("Error: No text was extracted from the PDF.")
     
     # Display chat history above the input field
     for i, message_data in enumerate(st.session_state.chat_history):
