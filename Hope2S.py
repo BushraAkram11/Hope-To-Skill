@@ -52,7 +52,7 @@ def main():
         st.image("https://yt3.googleusercontent.com/G5iAGza6uApx12jz1CBkuuysjvrbonY1QBM128IbDS6bIH_9FvzniqB_b5XdtwPerQRN9uk1=s900-c-k-c0x00ffffff-no-rj", width=290)
         st.sidebar.subheader("Google API Key")
         user_google_api_key = st.sidebar.text_input("🔑 Enter your Google Gemini API key", type="password", placeholder="Your Google API Key")
-
+    
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
@@ -61,7 +61,7 @@ def main():
         st.session_state.processComplete = None
 
     # Use the direct download link for Google Drive PDF
-    pdf_url = "https://drive.google.com/uc?export=download&id=1C7I5Y7PJcIPzjH_4T_PxfMdEw13_vz6a"
+    pdf_url = "https://drive.google.com/uc?export=download&id=17N15I2kbfDXeruSV3TS94ZtjxiGLJmGv"
     default_google_api_key = ""
     
     google_api_key = user_google_api_key if user_google_api_key else default_google_api_key
@@ -73,12 +73,10 @@ def main():
         vectorstore = get_vectorstore(text_chunks)
         st.session_state.conversation = vectorstore
         st.session_state.processComplete = True
-
+    
     # Display chat history above the input field
     for i, message_data in enumerate(st.session_state.chat_history):
-        # Append a unique prefix to avoid key duplication
-        unique_key = f"history_{i}"
-        message(message_data["content"], is_user=message_data["is_user"], key=unique_key)
+        message(message_data["content"], is_user=message_data["is_user"], key=str(i))
 
     # Accept user input with Streamlit's chat input widget
     if input_query := st.chat_input("What is your question?"):
@@ -86,13 +84,11 @@ def main():
         st.session_state.chat_history.append({"content": input_query, "is_user": True})
         st.session_state.chat_history.append({"content": response_text, "is_user": False})
 
-    # Display chat history with unique keys
+    # Display chat history
     response_container = st.container()
     with response_container:
         for i, message_data in enumerate(st.session_state.chat_history):
-            # Append a unique prefix to avoid key duplication
-            unique_key = f"response_{i}"
-            message(message_data["content"], is_user=message_data["is_user"], key=unique_key)
+            message(message_data["content"], is_user=message_data["is_user"], key=str(i + len(st.session_state.chat_history)))
 
 # Function to split text into smaller chunks
 def get_text_chunks(text):
@@ -113,18 +109,18 @@ def get_vectorstore(text_chunks):
 # Function to perform question answering with Google Generative AI
 def rag(vector_db, input_query, google_api_key):
     try:
-        template = """You are an AI assistant that assists users by providing answers to their questions by extracting information from the provided context:
+        template = """You are an AI assistant that assists users by providing detailed and comprehensive answers to their questions by extracting information from the provided context:
         {context}.
-        If you do not find any relevant information from context for the given question, simply say 'Sorry, I have no idea about that You can Contact Hope To Skill AI Team.'. Do not try to make up an answer.
+        Please provide a thorough and well-explained answer. If you do not find any relevant information from the context for the given question, simply say 'Sorry, I have no idea about that. You can contact Hope To Skill AI Team.'. Do not try to make up an answer.
         Question: {question}
         """
 
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 1})
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})  # Increase k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=google_api_key)
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
