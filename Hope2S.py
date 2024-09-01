@@ -13,15 +13,26 @@ import requests
 
 # Function to download and extract text from PDF from URL
 def load_pdf_from_url(pdf_url):
-    response = requests.get(pdf_url)
-    with open("downloaded_pdf.pdf", "wb") as f:
-        f.write(response.content)
+    try:
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+        
+        with open("downloaded_pdf.pdf", "wb") as f:
+            f.write(response.content)
 
-    text = ""
-    pdf_reader = PdfReader("downloaded_pdf.pdf")
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+        text = ""
+        pdf_reader = PdfReader("downloaded_pdf.pdf")
+        for page in pdf_reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text
+            else:
+                st.warning(f"Warning: No text extracted from page {pdf_reader.pages.index(page) + 1}")
+        return text
+    except requests.RequestException as e:
+        st.error(f"Error downloading PDF: {e}")
+    except Exception as e:
+        st.error(f"Error reading PDF: {e}")
 
 def main():
     st.set_page_config(page_title="Hope_To_Skill AI Chatbot", page_icon=":robot_face:")
@@ -41,7 +52,7 @@ def main():
             color: gray;
         }
         </style>
-        <div class="title">Hope To Skill</div>
+        <div class="title">Hope To Skill AI Chatbot</div>
         <div class="subtitle">Welcome to Hope To Skill AI Chatbot. How can I help you today?</div>
         """,
         unsafe_allow_html=True
@@ -69,14 +80,15 @@ def main():
     # Process the PDF in the background (hidden from user)
     if st.session_state.processComplete is None:
         files_text = load_pdf_from_url(pdf_url)
-        text_chunks = get_text_chunks(files_text)
-        vectorstore = get_vectorstore(text_chunks)
-        st.session_state.conversation = vectorstore
-        st.session_state.processComplete = True
+        if files_text:
+            text_chunks = get_text_chunks(files_text)
+            vectorstore = get_vectorstore(text_chunks)
+            st.session_state.conversation = vectorstore
+            st.session_state.processComplete = True
     
     # Display chat history above the input field
     for i, message_data in enumerate(st.session_state.chat_history):
-        message(message_data["content"], is_user=message_data["is_user"], key=str(i))
+        message(message_data["content"], is_user=message_data["is_user"], key=f"message_{i}")
 
     # Accept user input with Streamlit's chat input widget
     if input_query := st.chat_input("What is your question?"):
@@ -88,7 +100,7 @@ def main():
     response_container = st.container()
     with response_container:
         for i, message_data in enumerate(st.session_state.chat_history):
-            message(message_data["content"], is_user=message_data["is_user"], key=str(i + len(st.session_state.chat_history)))
+            message(message_data["content"], is_user=message_data["is_user"], key=f"message_{i + len(st.session_state.chat_history)}")
 
 # Function to split text into smaller chunks
 def get_text_chunks(text):
@@ -98,12 +110,17 @@ def get_text_chunks(text):
         length_function=len,
         is_separator_regex=False,
     )
-    return text_splitter.split_text(text)
+    chunks = text_splitter.split_text(text)
+    st.write(f"Number of chunks: {len(chunks)}")
+    for i, chunk in enumerate(chunks):
+        st.write(f"Chunk {i+1}: {chunk[:200]}...")  # Display the first 200 characters of each chunk
+    return chunks
 
 # Function to generate vector store from text chunks
 def get_vectorstore(text_chunks):
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     knowledge_base = FAISS.from_texts(text_chunks, embeddings)
+    st.write(f"Vector store created with {len(text_chunks)} chunks")
     return knowledge_base
 
 # Function to perform question answering with Google Generative AI
@@ -116,11 +133,11 @@ def rag(vector_db, input_query, google_api_key):
         """
 
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})  # Increase k to fetch more context
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, google_api_key=google_api_key)
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
@@ -129,8 +146,11 @@ def rag(vector_db, input_query, google_api_key):
             | output_parser
         )
         response = rag_chain.invoke(input_query)
+        st.write(f"Context used for query: {response['context'][:500]}...")  # Display the first 500 characters of context
+        st.write(f"Response: {response}")
         return response
     except Exception as ex:
+        st.write(f"Exception occurred: {str(ex)}")
         return str(ex)
 
 if __name__ == '__main__':
